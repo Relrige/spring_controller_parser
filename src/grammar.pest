@@ -1,0 +1,14 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+controller_file = { SOI ~ (!EOI ~ ANY)* }
+
+controller_annotation = { "@Controller" | "@RestController" }
+
+mapping_annotation = { 
+    "@RequestMapping" ~ mapping_args? |
+    "@GetMapping" ~ mapping_args? |
+    "@PostMapping" ~ mapping_args? |
+    "@DeleteMapping" ~ mapping_args? |
+    "@PatchMapping" ~ mapping_args? |
+    "@PutMapping" ~ mapping_args? 
+}
