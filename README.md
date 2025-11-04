@@ -34,6 +34,40 @@ The extracted AST can be used to:
 ## Grammar
 
 ```pest
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
+controller_file = { SOI ~ controller_block* ~ EOI }
+
+mapping_annotation = { 
+    "@RequestMapping" ~ mapping_args? |
+    "@GetMapping" ~ mapping_args? |
+    "@PostMapping" ~ mapping_args? |
+    "@DeleteMapping" ~ mapping_args? |
+    "@PatchMapping" ~ mapping_args? |
+    "@PutMapping" ~ mapping_args?
+}
+mapping_args = { "(" ~ (!")" ~ ANY)* ~ ")" }
+
+identifier = @{ (ASCII_ALPHANUMERIC | "_")+ }
+
+class_decl = { "class" ~ WHITESPACE+ ~ identifier }
+method = {
+    ( "public" | "protected" | "private" ) ~
+    WHITESPACE+ ~
+    (!"(" ~ ANY)* ~
+    "(" ~ (!")" ~ ANY)* ~ ")" ~
+    WHITESPACE* ~
+    "{" ~ (!"}" ~ ANY)* ~ "}"
+}
+
+controller_annotation = { "@Controller" | "@RestController" }
+
+controller_block = {
+    controller_annotation ~
+    (!class_decl ~ ANY)* ~
+    class_decl ~
+    (!"}" ~ method)* ~
+    "}"
+}
 
 ```
