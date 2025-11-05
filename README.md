@@ -49,11 +49,9 @@ mapping_annotation = {
 mapping_args = { "(" ~ (!")" ~ ANY)* ~ ")" }
 
 identifier = @{ (ASCII_ALPHANUMERIC | "_")+ }
-
-class_decl = { "class" ~ WHITESPACE+ ~ identifier }
+class_decl = { "class" ~ identifier }
 method = {
     ( "public" | "protected" | "private" ) ~
-    WHITESPACE+ ~
     (!"(" ~ ANY)* ~
     "(" ~ (!")" ~ ANY)* ~ ")" ~
     WHITESPACE* ~
