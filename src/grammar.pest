@@ -27,7 +27,7 @@ controller_annotation = { "@Controller" | "@RestController" }
 controller_block = {
     controller_annotation ~
     (!class_decl ~ ANY)* ~
-    class_decl ~
-    (!"}" ~ method)* ~
+    class_decl ~ "{" ~
+    (mapping_annotation* ~ WHITESPACE* ~ method)* ~
     "}"
 }
