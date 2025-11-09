@@ -39,34 +39,81 @@ fn extract_controller(pair: Pair<Rule>) -> Option<Controller> {
     let class_mapping = extract_mapping(parsed);
     let methods = extract_methods(parsed);
 
-    Some(Controller { name, class_mapping, methods })
+    Some(Controller {
+        name,
+        class_mapping,
+        methods,
+    })
 }
 
 fn extract_name(text: &str) -> Option<String> {
     let words: Vec<&str> = text.split_whitespace().collect();
 
     for i in 0..words.len() {
-        if words[i] == "class" {
-            if let Some(name) = words.get(i + 1) {
-                let clean_name = name.trim_end_matches('{').to_string();
-                return Some(clean_name);
-            }
+        if words[i] == "class"
+            && let Some(name) = words.get(i + 1)
+        {
+            let clean_name = name.trim_end_matches('{').to_string();
+            return Some(clean_name);
         }
     }
     None
 }
 
 fn extract_mapping(text: &str) -> Option<String> {
-    if let Some(start) = text.find("@RequestMapping") {
-        let after_part = &text[start..];
-        let part_before = after_part.split(')').next().unwrap_or("");
-        return Some(part_before.to_string());
-    }
-    None
+    text.find("@RequestMapping")
+        .and_then(|i| text[i..].split_once('(')?.1.split_once(')'))
+        .map(|(args, _)| args.trim().trim_matches('"').to_string())
 }
 
 fn extract_methods(s: &str) -> Vec<ControllerMethod> {
+    const ANNOTMETHOD: [&str; 6] = [
+        "@GetMapping",
+        "@PostMapping",
+        "@PutMapping",
+        "@DeleteMapping",
+        "@PatchMapping",
+        "@RequestMapping",
+    ];
+
     let mut methods = Vec::new();
 
+    for annot in ANNOTMETHOD {
+        let mut start = 0;
+        while let Some(pos) = s[start..].find(annot) {
+            let main_pos = start + pos;
+            if let Some(m) = extract_method(s, annot, main_pos) {
+                methods.push(m);
+            }
+            start = main_pos + annot.len();
+        }
+    }
+
     methods
+}
+
+fn extract_method(s: &str, ann: &str, start_idx: usize) -> Option<ControllerMethod> {
+    let after = &s[start_idx..];
+    let header = after
+        .split_once('{')?
+        .0
+        .lines()
+        .rev()
+        .find(|l| !l.trim().is_empty())?
+        .trim()
+        .to_string();
+    let ann_args = after
+        .split_once('(')?
+        .1
+        .split_once(')')?
+        .0
+        .trim()
+        .trim_matches('"')
+        .to_string();
+
+    Some(ControllerMethod {
+        annotation: Some(ann.trim_start_matches('@').to_string()),
+        annotation_args: Some(ann_args),
+        header,
+    })
 }

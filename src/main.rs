@@ -26,11 +26,13 @@ enum Commands {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    match &cli.command{
+    match &cli.command {
         Commands::Parse { file } => {
             let controller_file = fs::read_to_string(file)
                 .with_context(|| format!("Failed to read the file: {}", file))?;
-            
+            let result = spring_controller_parser::parse_controllers(&controller_file)
+                .with_context(|| "Failed to parse spring controller")?;
+            println!("{:#?}", result);
         }
 
         Commands::Help => {

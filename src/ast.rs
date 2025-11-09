@@ -1,4 +1,3 @@
-
 // Representaion of Spring Controller in Java
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Controller {

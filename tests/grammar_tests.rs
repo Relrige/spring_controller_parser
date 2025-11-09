@@ -1,6 +1,6 @@
+use anyhow::{Result, anyhow};
 use pest::Parser;
-use anyhow::{anyhow, Result};
-use spring_controller_parser::*; 
+use spring_controller_parser::*;
 
 #[test]
 fn identifier_test() -> Result<()> {
@@ -24,7 +24,7 @@ fn class_decl_test() -> Result<()> {
 
 #[test]
 fn method_test() -> Result<()> {
-    let input ="public String hello() { return \"hi\"; }";
+    let input = "public String hello() { return \"hi\"; }";
     let pair = Grammar::parse(Rule::method, input)?
         .next()
         .ok_or_else(|| anyhow!("No pair"))?;
@@ -95,7 +95,7 @@ fn controller_block_test() -> Result<()> {
     let pair = Grammar::parse(Rule::controller_block, input)?
         .next()
         .ok_or_else(|| anyhow!("No pair"))?;
-    
+
     let text = pair.as_str();
     assert!(text.contains("@RestController"));
     assert!(text.contains("class MyControllerForTest"));
@@ -125,7 +125,7 @@ fn controller_file_test() -> Result<()> {
     let pair = Grammar::parse(Rule::controller_file, input)?
         .next()
         .ok_or_else(|| anyhow!("No pair"))?;
-    
+
     let text = pair.as_str();
     assert!(text.contains("@Controller"));
     assert!(text.contains("HelloController"));
