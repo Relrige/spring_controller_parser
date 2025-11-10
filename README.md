@@ -1,7 +1,7 @@
 # spring-controller-pest
 
 * Crates: https://crates.io/crates/spring_controller_parser
-* Docs: 
+* Docs: https://docs.rs/spring_controller_parser/latest/spring_controller_parser/
 
 > A Rust crate that parses Java Spring `@Controller` and `@RestController` classes and their request-mapping method using pest.
 
