@@ -1,7 +1,19 @@
+/// Rule to skip all spaces, tabs, newlines 
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
+//Core rule to parse file with controllers
+///It can parse zero or more controller_blocks and
+/// ensures is starts from SOI and ends in EOI 
 controller_file = { SOI ~ controller_block* ~ EOI }
 
+/// Matches any Spring mapping annotation, such as:
+///  `@RequestMapping`
+///  `@GetMapping`
+///  `@PostMapping`
+///  `@DeleteMapping`
+///  `@PatchMapping`
+///  `@PutMapping`
+///  They may contain mapping argument
 mapping_annotation = { 
     "@RequestMapping" ~ mapping_args? |
     "@GetMapping" ~ mapping_args? |
@@ -10,10 +22,19 @@ mapping_annotation = {
     "@PatchMapping" ~ mapping_args? |
     "@PutMapping" ~ mapping_args?
 }
+/// Matches the arguments inside parentheses of a mapping annotation.
 mapping_args = { "(" ~ (!")" ~ ANY)* ~ ")" }
-
+/// Matches a valid Java identifier
+/// Allows ASCII alphanumeric characters and underscores
 identifier = @{ (ASCII_ALPHANUMERIC | "_")+ }
+/// Matches a basic Java class declaration
+/// Captures the keyword `class` followed by an identifier
 class_decl = { "class" ~ identifier }
+/// Matches a Java method including its header and body.
+/// This Includes:
+/// - A visibility modifier
+/// - A method signature
+/// - A method body
 method = {
     ( "public" | "protected" | "private" ) ~
     (!"(" ~ ANY)* ~
@@ -21,9 +42,16 @@ method = {
     WHITESPACE* ~
     "{" ~ (!"}" ~ ANY)* ~ "}"
 }
-
+/// Matches controller-level annotations:
+/// - `@Controller`
+/// - `@RestController`
 controller_annotation = { "@Controller" | "@RestController" }
-
+/// Matches a full Spring controller class definition.
+/// Controller block consists of:
+/// - A controller annotation
+/// - Optional mapping annotations for the class
+/// - The class declaration
+/// - Zero or more methods
 controller_block = {
     controller_annotation ~
     (!class_decl ~ ANY)* ~
