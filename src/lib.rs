@@ -1,6 +1,5 @@
-//! Spring Controller Parser
-//!
-//! This crate parses Java Spring controller classes using Pest grammar and produces structured AST data
+#![doc = include_str!("../docs.md")]
+
 use pest::{Parser, iterators::Pair};
 use thiserror::Error;
 
