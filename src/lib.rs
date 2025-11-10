@@ -1,3 +1,6 @@
+//! Spring Controller Parser
+//!
+//! This crate parses Java Spring controller classes using Pest grammar and produces structured AST data
 use pest::{Parser, iterators::Pair};
 use thiserror::Error;
 
@@ -12,14 +15,19 @@ pub struct Grammar;
 /// The `SpringControllerParserError` enum represents errors that can haapen during parsing
 #[derive(Error, Debug)]
 pub enum SpringControllerParserError {
+    /// Error returned by Pest parser
     #[error("parsing error: {0}")]
     PestError(#[from] Box<pest::error::Error<Rule>>),
+    /// No controllers were found in the source
     #[error("no controllers found error")]
     NoControllers,
+    /// Failed to extract method annotation arguments
     #[error("failed to extract annotation arguments for method: {0}")]
     MethodAnnotationError(String),
     #[error("failed to extract class name")]
+    /// Could not extract class name
     ClassNameError,
+    /// Eextraction errors
     #[error("extraction error: {0}")]
     ExtractionError(String),
 }
@@ -29,7 +37,18 @@ pub enum SpringControllerParserError {
 ///
 /// # Returns
 /// A `Vec<Controller>` on success, or [`SpringControllerParserError`] on failure
-/// This func parses from the controller_file defined in `grammar.pest`
+/// # Example
+/// ```rust
+/// let src = r#"
+/// @RestController
+/// class TestController {
+///     @GetMapping("/test")
+///     public String test() { return "test"; }
+/// }
+/// "#;
+///
+/// let parsed = spring_controller_parser::parse_controllers(src).unwrap();
+/// ```
 pub fn parse_controllers(src: &str) -> Result<Vec<Controller>, SpringControllerParserError> {
     let parse_result = Grammar::parse(Rule::controller_file, src)
         .map_err(|e| SpringControllerParserError::PestError(Box::new(e)))?;
