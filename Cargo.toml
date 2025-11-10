@@ -4,6 +4,7 @@ description = "A Rust pest parser for Java Spring controllers"
 license = "MIT"
 version = "0.1.0"
 edition = "2024"
+repository = "https://github.com/Relrige/spring_controller_parser"
 
 [dependencies]
 anyhow = "1.0.100"
