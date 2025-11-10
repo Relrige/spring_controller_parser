@@ -13,7 +13,7 @@ pub struct Grammar;
 #[derive(Error, Debug)]
 pub enum SpringControllerParserError {
     #[error("parsing error: {0}")]
-    PestError(#[from] pest::error::Error<Rule>),
+    PestError(#[from] Box<pest::error::Error<Rule>>),
     #[error("no controllers found error")]
     NoControllers,
     #[error("failed to extract annotation arguments for method: {0}")]
@@ -31,7 +31,8 @@ pub enum SpringControllerParserError {
 /// A `Vec<Controller>` on success, or [`SpringControllerParserError`] on failure
 /// This func parses from the controller_file defined in `grammar.pest`
 pub fn parse_controllers(src: &str) -> Result<Vec<Controller>, SpringControllerParserError> {
-    let parse_result = Grammar::parse(Rule::controller_file, src)?;
+    let parse_result = Grammar::parse(Rule::controller_file, src)
+        .map_err(|e| SpringControllerParserError::PestError(Box::new(e)))?;
     let mut controllers = Vec::new();
     for pair in parse_result {
         controllers.push(extract_controller(pair)?);
@@ -78,10 +79,10 @@ fn extract_name(text: &str) -> Result<String, SpringControllerParserError> {
     let words: Vec<&str> = text.split_whitespace().collect();
 
     for i in 0..words.len() {
-        if words[i] == "class" {
-            if let Some(name) = words.get(i + 1) {
-                return Ok(name.trim_end_matches('{').to_string());
-            }
+        if words[i] == "class"
+            && let Some(name) = words.get(i + 1)
+        {
+            return Ok(name.trim_end_matches('{').to_string());
         }
     }
 
